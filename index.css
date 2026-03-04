@@ -1,0 +1,51 @@
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  sendPasswordResetEmail,
+  updateProfile,
+  onAuthStateChanged,
+  type User as FirebaseUser,
+} from 'firebase/auth'
+import { auth, googleProvider } from '../firebase/config'
+import type { User } from '../types'
+
+export function mapFirebaseUser(fbUser: FirebaseUser): User {
+  return {
+    uid: fbUser.uid,
+    email: fbUser.email,
+    displayName: fbUser.displayName,
+    photoURL: fbUser.photoURL,
+  }
+}
+
+export async function signUp(email: string, password: string, displayName: string): Promise<User> {
+  const cred = await createUserWithEmailAndPassword(auth, email, password)
+  await updateProfile(cred.user, { displayName })
+  return mapFirebaseUser(cred.user)
+}
+
+export async function signIn(email: string, password: string): Promise<User> {
+  const cred = await signInWithEmailAndPassword(auth, email, password)
+  return mapFirebaseUser(cred.user)
+}
+
+export async function signInWithGoogle(): Promise<User> {
+  const cred = await signInWithPopup(auth, googleProvider)
+  return mapFirebaseUser(cred.user)
+}
+
+export async function logOut(): Promise<void> {
+  await signOut(auth)
+}
+
+export async function resetPassword(email: string): Promise<void> {
+  await sendPasswordResetEmail(auth, email)
+}
+
+export function onAuthChange(callback: (user: User | null) => void): () => void {
+  return onAuthStateChanged(auth, (fbUser) => {
+    callback(fbUser ? mapFirebaseUser(fbUser) : null)
+  })
+}
