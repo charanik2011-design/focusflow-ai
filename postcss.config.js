@@ -1,11 +1,6 @@
-[build]
-  publish = "dist"
-  command = "npm run build"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[build.environment]
-  NODE_VERSION = "18"
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
